@@ -3,11 +3,36 @@ import Link from "next/link"
 import { usePosts } from "../hooks/usePosts"
 import { marked } from "marked"
 import DOMPurify from "dompurify"
+import { useEffect, useState } from "react"
 
 interface PostListProps {
   page?: number
   limit?: number
   className?: string
+}
+
+function PostExcerpt({ content, excerpt }: { content: string; excerpt?: string }) {
+  const [parsedExcerpt, setParsedExcerpt] = useState<string>("")
+
+  useEffect(() => {
+    const parseExcerpt = async () => {
+      try {
+        const textToProcess = excerpt || content.substring(0, 300) + "..."
+        const html = await marked.parse(textToProcess)
+        setParsedExcerpt(DOMPurify.sanitize(html))
+      } catch (err) {
+        console.error("Error parsing excerpt:", err)
+        setParsedExcerpt(excerpt || content.substring(0, 300) + "...")
+      }
+    }
+    parseExcerpt()
+  }, [content, excerpt])
+
+  if (excerpt) {
+    return <p>{excerpt}</p>
+  }
+
+  return <div dangerouslySetInnerHTML={{ __html: parsedExcerpt }} />
 }
 
 export function PostList({ page = 1, limit = 10, className = "" }: PostListProps) {
@@ -60,15 +85,7 @@ export function PostList({ page = 1, limit = 10, className = "" }: PostListProps
             </div>
 
             <div className="prose prose-gray max-w-none">
-              {post.excerpt ? (
-                <p>{post.excerpt}</p>
-              ) : (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(marked.parse(post.content.substring(0, 300) + "...")),
-                  }}
-                />
-              )}
+              <PostExcerpt content={post.content} excerpt={post.excerpt} />
             </div>
 
             <Link
