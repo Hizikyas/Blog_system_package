@@ -5,6 +5,7 @@ import { CommentSection } from "./CommentSection"
 import { ReportButton } from "./ReportButton"
 import { marked } from "marked"
 import DOMPurify from "dompurify"
+import { useEffect, useState } from "react"
 
 interface PostProps {
   slug: string
@@ -13,6 +14,22 @@ interface PostProps {
 
 export function Post({ slug, className = "" }: PostProps) {
   const { post, isLoading, error } = usePost(slug)
+  const [parsedContent, setParsedContent] = useState<string>("")
+
+  useEffect(() => {
+    if (post?.content) {
+      const parseContent = async () => {
+        try {
+          const html = await marked.parse(post.content)
+          setParsedContent(DOMPurify.sanitize(html))
+        } catch (err) {
+          console.error("Error parsing markdown:", err)
+          setParsedContent(DOMPurify.sanitize(post.content))
+        }
+      }
+      parseContent()
+    }
+  }, [post?.content])
 
   if (isLoading) {
     return (
@@ -58,12 +75,7 @@ export function Post({ slug, className = "" }: PostProps) {
         </div>
       </header>
 
-      <div
-        className="prose prose-lg max-w-none mb-8"
-        dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(marked.parse(post.content)),
-        }}
-      />
+      <div className="prose prose-lg max-w-none mb-8" dangerouslySetInnerHTML={{ __html: parsedContent }} />
 
       <div className="border-t border-gray-200 pt-8">
         <ReactionButtons postId={post.id} />
