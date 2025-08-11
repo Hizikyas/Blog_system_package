@@ -1,19 +1,17 @@
-'use client';
-
-import React from 'react';
-import Link from 'next/link';
-import { usePosts } from '../hooks/usePosts';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+"use client"
+import Link from "next/link"
+import { usePosts } from "../hooks/usePosts"
+import { marked } from "marked"
+import DOMPurify from "dompurify"
 
 interface PostListProps {
-  page?: number;
-  limit?: number;
-  className?: string;
+  page?: number
+  limit?: number
+  className?: string
 }
 
-export function PostList({ page = 1, limit = 10, className = '' }: PostListProps) {
-  const { posts, total, isLoading, error } = usePosts(page, limit);
+export function PostList({ page = 1, limit = 10, className = "" }: PostListProps) {
+  const { posts, total, isLoading, error } = usePosts(page, limit)
 
   if (isLoading) {
     return (
@@ -29,7 +27,7 @@ export function PostList({ page = 1, limit = 10, className = '' }: PostListProps
           </div>
         ))}
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -37,10 +35,10 @@ export function PostList({ page = 1, limit = 10, className = '' }: PostListProps
       <div className={`text-red-600 p-4 border border-red-200 rounded ${className}`}>
         Error loading posts: {error.message}
       </div>
-    );
+    )
   }
 
-  const totalPages = Math.ceil(total / limit);
+  const totalPages = Math.ceil(total / limit)
 
   return (
     <div className={className}>
@@ -52,12 +50,12 @@ export function PostList({ page = 1, limit = 10, className = '' }: PostListProps
                 {post.title}
               </h2>
             </Link>
-            
+
             <div className="text-sm text-gray-500 mb-4">
-              {new Date(post.created_at).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+              {new Date(post.created_at).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </div>
 
@@ -65,17 +63,15 @@ export function PostList({ page = 1, limit = 10, className = '' }: PostListProps
               {post.excerpt ? (
                 <p>{post.excerpt}</p>
               ) : (
-                <div 
+                <div
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(
-                      marked(post.content.substring(0, 300) + '...')
-                    )
+                    __html: DOMPurify.sanitize(marked.parse(post.content.substring(0, 300) + "...")),
                   }}
                 />
               )}
             </div>
 
-            <Link 
+            <Link
               href={`/blog/${post.slug}`}
               className="inline-block mt-4 text-blue-600 hover:text-blue-800 font-medium"
             >
@@ -88,28 +84,22 @@ export function PostList({ page = 1, limit = 10, className = '' }: PostListProps
       {totalPages > 1 && (
         <div className="flex justify-center items-center space-x-4 mt-12">
           {page > 1 && (
-            <Link 
-              href={`?page=${page - 1}`}
-              className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
-            >
+            <Link href={`?page=${page - 1}`} className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
               Previous
             </Link>
           )}
-          
+
           <span className="text-gray-600">
             Page {page} of {totalPages}
           </span>
-          
+
           {page < totalPages && (
-            <Link 
-              href={`?page=${page + 1}`}
-              className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
-            >
+            <Link href={`?page=${page + 1}`} className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">
               Next
             </Link>
           )}
         </div>
       )}
     </div>
-  );
+  )
 }
