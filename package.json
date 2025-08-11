@@ -1,5 +1,5 @@
 {
-  "name": "@zemenay/blog-system",
+  "name": "@hizikyas/blog-system",
   "version": "0.1.0",
   "description": "A plug-and-play Next.js blog system with Supabase integration",
   "main": "dist/index.js",
